@@ -233,9 +233,12 @@ function renderEntregas(entregas, elementId, showUser) {
             <td><span class="status ${estadoClass}">${entrega.estado || 'ENVIADO'}</span></td>
             ${userColumn}
             <td>
-                <a href="${entrega.archivo_url}" target="_blank" style="color: var(--accent); text-decoration: none;">
+                <a href="${entrega.archivo_url}" target="_blank" style="color: var(--accent); text-decoration: none; margin-right: 10px;">
                     Ver archivo
                 </a>
+                <button onclick="eliminarEntrega('${entrega._id}')" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.8rem;">
+                    Eliminar
+                </button>
             </td>
         `;
         tbody.appendChild(fila);
@@ -312,5 +315,27 @@ async function marcarComoEntregada(id) {
     } catch (error) {
         console.error("Error al actualizar tarea:", error);
         alert("Error de conexión");
+    }
+}
+
+async function eliminarEntrega(id) {
+    if (!confirm("¿Estás seguro de que deseas eliminar esta tarea permanentemente?")) return;
+
+    try {
+        const response = await fetch(`${API_URL}/api/entregas/${id}`, {
+            method: 'DELETE'
+        });
+
+        if (response.ok) {
+            alert("Tarea eliminada correctamente");
+            fetchEntregas();
+            fetchMisEntregas();
+        } else {
+            const err = await response.json();
+            alert("Error al eliminar: " + (err.error || err.message));
+        }
+    } catch (error) {
+        console.error("Error al eliminar tarea:", error);
+        alert("Error de conexión al intentar eliminar.");
     }
 }

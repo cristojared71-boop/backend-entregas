@@ -110,6 +110,24 @@ app.put('/api/entregas/:id', async (req, res) => {
     }
 });
 
+// Eliminar una entrega
+app.delete('/api/entregas/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const entregaEliminada = await Delivery.findByIdAndDelete(id);
+
+        if (!entregaEliminada) {
+            return res.status(404).json({ error: "Entrega no encontrada" });
+        }
+
+        console.log(`🗑️ Entrega eliminada: ${id}`);
+        res.json({ message: "Entrega eliminada correctamente" });
+    } catch (err) {
+        console.error("❌ Error al eliminar entrega:", err.message);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // ===============================
 // AUTENTICACIÓN
 // ===============================
