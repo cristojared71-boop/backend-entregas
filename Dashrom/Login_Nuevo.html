@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Sistema de Entregas</title>
+    <style>
+        :root {
+            --primary-color: #4facfe;
+            --secondary-color: #00f2fe;
+        }
+
+        body, html {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            background-attachment: fixed;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-card {
+            background: white;
+            padding: 40px;
+            width: 90%;
+            max-width: 380px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            text-align: center;
+            z-index: 10;
+        }
+
+        .login-card h2 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+
+        .login-card p {
+            color: #777;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .input-group i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #aaa;
+        }
+
+        .login-card input {
+            width: 100%;
+            padding: 14px 15px 14px 45px;
+            border: 2px solid #eee;
+            border-radius: 12px;
+            box-sizing: border-box;
+            outline: none;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+
+        .login-card input:focus {
+            border-color: var(--primary-color);
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            background: #4facfe;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .btn-login:hover {
+            background: #3b94e0;
+            transform: translateY(-2px);
+        }
+
+        .error-msg {
+            background-color: #ffe6e6;
+            color: #ff4d4d;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 20px;
+            display: none;
+            border: 1px solid #ff4d4d;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <h2>Bienvenido</h2>
+        <p>Inicia sesión en el sistema</p>
+        
+        <div id="mensaje-error" class="error-msg">
+            Matrícula o contraseña incorrectos
+        </div>
+
+        <form id="loginForm">
+            <div class="input-group">
+                <i class="fas fa-user"></i>
+                <input type="text" id="matricula" placeholder="Matrícula" required>
+            </div>
+            
+            <div class="input-group">
+                <i class="fas fa-lock"></i>
+                <input type="password" id="password" placeholder="Contraseña" required>
+            </div>
+
+            <button type="submit" class="btn-login">Entrar</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const matricula = document.getElementById('matricula').value;
+            const pass = document.getElementById('password').value;
+            const error = document.getElementById('mensaje-error');
+
+            if (matricula === "123456789" && pass === "12345") {
+                alert("Acceso correcto. Redirigiendo...");
+                window.location.href = "dasboard.ejemplo.html";
+            } else {
+                error.style.display = "block";
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashrom - Sistema de Entregas</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Fuente opcional de Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <h2>DASHROM</h2>
+        <nav>
+            <a href="#" class="menu-item active" data-section="panel-principal">Panel Principal</a>
+            <a href="#" class="menu-item" data-section="mis-entregas">Mis Entregas</a>
+            <a href="#" class="menu-item" data-section="tareas-pendientes">Tareas Pendientes</a>
+            <a href="#" id="btn-logout" class="menu-item" style="color: #ff6b6b; margin-top: auto;">Cerrar Sesión</a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header>
+            <h1 id="welcome-msg">Bienvenido</h1>
+            <button id="btn-nueva-entrega" class="btn btn-primary">Nueva Entrega</button>
+        </header>
+
+        <!-- SECCIÓN: PANEL PRINCIPAL (Todas las entregas) -->
+        <section id="panel-principal" class="content-section active">
+            <div class="table-header">
+                <h3>Historial General</h3>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Materia</th>
+                        <th>Tarea</th>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                        <th>Usuario</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="entregas-body">
+                    <tr>
+                        <td colspan="6" style="text-align: center;">Cargando datos...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- SECCIÓN: MIS ENTREGAS -->
+        <section id="mis-entregas" class="content-section" style="display: none;">
+            <div class="table-header">
+                <h3>Mis Entregas</h3>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Materia</th>
+                        <th>Tarea</th>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="mis-entregas-body">
+                    <tr>
+                        <td colspan="5" style="text-align: center;">Cargando tus entregas...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- SECCIÓN: TAREAS PENDIENTES -->
+        <section id="tareas-pendientes" class="content-section" style="display: none;">
+            <div class="table-header">
+                <h3>Tareas Pendientes</h3>
+            </div>
+            <div id="tareas-container" class="card-container"
+                style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;">
+                <!-- Cargado dinámicamente -->
+            </div>
+        </section>
+
+
+    </main>
+
+    <!-- MODAL NUEVA ENTREGA -->
+    <div id="modal-nueva-entrega" class="modal"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
+        <div class="modal-content"
+            style="padding: 40px; border-radius: 20px; width: 90%; max-width: 550px; position: relative;">
+            <span id="close-modal"
+                style="position: absolute; top: 20px; right: 25px; font-size: 28px; cursor: pointer; color: var(--text-muted);">&times;</span>
+            <h2 style="margin-bottom: 30px; font-size: 1.8rem; font-weight: 700;">Crear Registro</h2>
+            <form id="form-nueva-entrega">
+                <div class="input-group" style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; color: var(--text-muted);">Asignatura /
+                        Materia</label>
+                    <input type="text" id="materia" required placeholder="Ej. Base de Datos" style="width: 100%;">
+                </div>
+                <div class="input-group" style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; color: var(--text-muted);">Descripción de
+                        Tarea</label>
+                    <input type="text" id="tarea" required placeholder="Ej. Realizar Diagrama ER" style="width: 100%;">
+                </div>
+                <div class="input-group" style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; color: var(--text-muted);">Fecha Límite</label>
+                    <input type="date" id="fecha_entrega" required style="width: 100%;">
+                </div>
+                <div class="input-group" style="margin-bottom: 35px;">
+                    <label style="display: block; margin-bottom: 8px; color: var(--text-muted);">Adjuntar
+                        Documento</label>
+                    <input type="file" id="archivo" required style="width: 100%;">
+                </div>
+                <div style="display: flex; gap: 15px;">
+                    <button type="button" id="btn-cancelar" class="btn"
+                        style="flex: 1; background: transparent; border: 1px solid var(--border); color: white;">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" style="flex: 2;">Confirmar Entrega</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>

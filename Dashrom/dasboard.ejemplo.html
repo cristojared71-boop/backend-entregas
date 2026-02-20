@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Entregas - Dashboard</title>
+    <style>
+        :root {
+            --primary: #2c7be5;
+            --dark: #1f2937;
+            --bg: #f8f9fa;
+            --text: #333;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--bg);
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: var(--dark);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            padding: 20px 0;
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            color: var(--primary);
+        }
+
+        .sidebar a {
+            padding: 15px 25px;
+            color: #ccc;
+            text-decoration: none;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .sidebar a:hover {
+            background-color: #374151;
+            color: white;
+            border-left: 4px solid var(--primary);
+        }
+
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        header {
+            background: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .container {
+            padding: 30px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .card h3 { font-size: 0.9rem; color: #666; margin-bottom: 10px; }
+        .card p { font-size: 1.8rem; font-weight: bold; color: var(--primary); }
+
+        .table-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-top: 20px;
+        }
+
+        .table-container h3 {
+            margin-bottom: 15px;
+            color: var(--text);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        th { color: #888; font-weight: 600; }
+
+        .status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+        .status.entregado { background: #dcfce7; color: #166534; }
+        .status.pendiente { background: #fef9c3; color: #854d0e; }
+
+        h2 {
+            color: var(--text);
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2> LOGÍSTICA</h2>
+        <a href="#" onclick="cargarSeccion('principal')"> Panel Principal</a>
+        <a href="#" onclick="cargarSeccion('entregas')"> Tareas Pendientes</a>
+        <a href="#" onclick="cargarSeccion('rutas')"> Mis entregas </a>
+        <a href="#" onclick="cargarSeccion('reportes')"> Tareas Vencidas </a>
+        <a href="#" onclick="cerrarSesion()" style="margin-top: auto;">🚪 Cerrar Sesión</a>
+    </div>
+
+    <script>
+        function cargarSeccion(seccion) {
+            const container = document.getElementById('contenido-principal');
+
+            if (seccion === 'principal') {
+                container.innerHTML = `
+                    <div class="stats-grid">
+                        <div class="card">
+                            <h3>Entregas Hoy</h3>
+                            <p>14</p>
+                        </div>
+                        <div class="card">
+                            <h3>Pendientes</h3>
+                            <p>3</p>
+                        </div>
+                        <div class="card">
+                            <h3>Eficiencia</h3>
+                            <p>98%</p>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <h3>Últimas Entregas</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Orden</th>
+                                    <th>Cliente</th>
+                                    <th>Destino</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>#1204</td>
+                                    <td>Juan Pérez</td>
+                                    <td>Calle Central 123</td>
+                                    <td><span class="status entregado">Entregado</span></td>
+                                </tr>
+                                <tr>
+                                    <td>#1205</td>
+                                    <td>María García</td>
+                                    <td>Av. Libertad 45</td>
+                                    <td><span class="status pendiente">En ruta</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            } else if (seccion === 'entregas') {
+                container.innerHTML = `
+                    <h2> Tareas pendientes </h2>
+                    <div class="table-container">
+                        <h3>Listado de Entregas Asignadas</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Orden</th>
+                                    <th>Cliente</th>
+                                    <th>Producto</th>
+                                    <th>Destino</th>
+                                    <th>Fecha</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>#1204</td>
+                                    <td>Juan Pérez</td>
+                                    <td>Paquete Electrónico</td>
+                                    <td>Calle Central 123</td>
+                                    <td>2024-02-11</td>
+                                    <td><span class="status entregado">Entregado</span></td>
+                                </tr>
+                                <tr>
+                                    <td>#1205</td>
+                                    <td>María García</td>
+                                    <td>Caja de Libros</td>
+                                    <td>Av. Libertad 45</td>
+                                    <td>2024-02-11</td>
+                                    <td><span class="status pendiente">En ruta</span></td>
+                                </tr>
+                                <tr>
+                                    <td>#1206</td>
+                                    <td>Carlos López</td>
+                                    <td>Documento Urgente</td>
+                                    <td>Plaza Mayor 8</td>
+                                    <td>2024-02-11</td>
+                                    <td><span class="status pendiente">Pendiente</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            } else if (seccion === 'rutas') {
+                container.innerHTML = `
+                    <h2> Mis Entregas </h2>
+                    <div class="table-container">
+                        <h3>Rutas Programadas</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Ruta</th>
+                                    <th>Paradas</th>
+                                    <th>Distancia</th>
+                                    <th>Tiempo Estimado</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Ruta A - Centro</td>
+                                    <td>8</td>
+                                    <td>12 km</td>
+                                    <td>45 min</td>
+                                    <td><span class="status entregado">En progreso</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Ruta B - Norte</td>
+                                    <td>6</td>
+                                    <td>15 km</td>
+                                    <td>60 min</td>
+                                    <td><span class="status pendiente">Próxima</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            } else if (seccion === 'reportes') {
+                container.innerHTML = `
+                    <h2> Tareas Vencidas </h2>
+                    <div class="stats-grid">
+                        <div class="card">
+                            <h3>Entregas Completadas</h3>
+                            <p>145</p>
+                        </div>
+                        <div class="card">
+                            <h3>Tasa de Entrega</h3>
+                            <p>98.5%</p>
+                        </div>
+                        <div class="card">
+                            <h3>Tiempo Promedio</h3>
+                            <p>42 min</p>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <h3>Resumen de Actividad</h3>
+                        <p>Reportes mensuales y análisis de desempeño disponibles.</p>
+                    </div>
+                `;
+            }
+        }
+
+        function cerrarSesion() {
+            if (confirm('¿Deseas cerrar sesión?')) {
+                window.location.href = 'Login.html';
+            }
+        }
+
+        window.addEventListener('load', function() {
+            cargarSeccion('entregas');
+        });
+    </script>
+
+</body>
+</html>
