@@ -1,47 +1,66 @@
 document.addEventListener('DOMContentLoaded', () => {
-    checkSession();
+    // Inicializar Firebase
+    if (typeof firebase !== 'undefined') {
+        firebase.initializeApp(firebaseConfig);
+        checkAuthState();
+    }
+
     setupNavigation();
     setupModal();
     fetchEntregas();
     fetchMisEntregas();
 
-    // Sincronizar cierre de sesión entre pestañas
+    // Sincronizar cierre de sesión entre múltiples pestañas
     window.addEventListener('storage', (e) => {
         if (e.key === 'usuario' && !e.newValue) {
+            console.log("🔄 Sesión cerrada en otra pestaña detectada. Redirigiendo...");
             window.location.href = "Login_Nuevo.html";
         }
     });
 });
 
-// Configuración de API
-// IMPORTANTE: Forzamos el uso de Render para que los archivos se suban a la nube
-// y la App Android pueda verlos. Si usas localhost, la App no verá los archivos.
+function checkAuthState() {
+    firebase.auth().onAuthStateChanged((user) => {
+        if (!user) {
+            console.log("🚫 No hay sesión activa, redirigiendo al login...");
+            localStorage.removeItem('usuario');
+            window.location.href = "Login_Nuevo.html";
+        } else {
+            console.log("✅ Sesión activa detectada para:", user.email);
+            // Sincronizar localStorage con los datos de Firebase
+            const userData = {
+                matricula: user.email,
+                rol: "ADMIN",
+                nombre: user.displayName || user.email.split('@')[0],
+                uid: user.uid
+            };
+            localStorage.setItem('usuario', JSON.stringify(userData));
+
+            checkSession();
+        }
+    });
+}
+
 const API_URL = 'https://backend-entregas-dlfs.onrender.com';
 
-/* 
-const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? 'http://localhost:5000'
-    : 'https://backend-entregas-dlfs.onrender.com';
-*/
 
-let usuario = null;
 
-try {
-    usuario = JSON.parse(localStorage.getItem('usuario'));
-} catch (e) {
-    console.error("Error parsing user from localStorage", e);
-    localStorage.removeItem('usuario');
-}
+// La variable global 'usuario' ha sido eliminada para evitar datos obsoletos.
+// Ahora cada función obtiene el usuario directamente de localStorage.
 
 function checkSession() {
     const welcomeMsg = document.getElementById('welcome-msg');
-    if (!usuario || usuario.matricula === "Invitado") {
-        if (welcomeMsg) welcomeMsg.innerText = "Bienvenido, Invitado";
+    const usuarioActual = JSON.parse(localStorage.getItem('usuario'));
+
+    if (!usuarioActual || usuarioActual.matricula === "Invitado") {
+        console.log("🚫 Usuario no autorizado o Invitado. Redirigiendo...");
+        localStorage.removeItem('usuario');
+        window.location.href = "Login_Nuevo.html";
         return;
     }
 
     if (welcomeMsg) {
-        welcomeMsg.innerText = `Bienvenido, ${usuario.matricula}`;
+        welcomeMsg.innerText = `Bienvenido, ${usuarioActual.matricula}`;
     }
 }
 
@@ -114,7 +133,9 @@ function setupModal() {
             const archivoInput = document.getElementById('archivo');
 
             const formData = new FormData();
-            formData.append('matricula', usuario.matricula);
+            const usuarioActual = JSON.parse(localStorage.getItem('usuario'));
+            if (!usuarioActual) return;
+            formData.append('matricula', usuarioActual.matricula);
             formData.append('materia', materia);
             formData.append('tarea', tarea);
             formData.append('fecha_entrega', fecha_entrega);
@@ -133,7 +154,7 @@ function setupModal() {
 
                 const response = await fetch(`${API_URL}/api/entregas`, {
                     method: 'POST',
-                    body: formData // No enviamos headers, fetch lo hace automáticamente para FormData
+                    body: formData
                 });
 
                 btnSubmit.innerText = originalText;
@@ -157,9 +178,19 @@ function setupModal() {
 }
 
 function logout() {
+    console.log("🚪 Cerrando sesión...");
     localStorage.removeItem('usuario');
-    // Redirigir a la pantalla de bienvenida (anteriormente login)
-    window.location.href = "Login_Nuevo.html";
+
+    if (typeof firebase !== 'undefined') {
+        firebase.auth().signOut().then(() => {
+            window.location.href = "Login_Nuevo.html";
+        }).catch((error) => {
+            console.error("Error al cerrar sesión en Firebase:", error);
+            window.location.href = "Login_Nuevo.html";
+        });
+    } else {
+        window.location.href = "Login_Nuevo.html";
+    }
 }
 
 async function fetchEntregas() {
@@ -189,16 +220,19 @@ async function fetchEntregas() {
 }
 
 async function fetchMisEntregas() {
-    if (!usuario) return;
+    const usuarioActual = JSON.parse(localStorage.getItem('usuario'));
+    if (!usuarioActual) return;
     try {
-        console.log(`📡 Obteniendo entregas para: ${usuario.matricula}`);
-        // Filtrar por matrícula en la API
-        const response = await fetch(`${API_URL}/api/entregas?matricula=${usuario.matricula}`);
+        console.log(`📡 Obteniendo entregas para: ${usuarioActual.matricula}`);
+
+
+
+        const response = await fetch(`${API_URL}/api/entregas?matricula=${usuarioActual.matricula}`);
         if (!response.ok) throw new Error('Error al obtener mis entregas');
 
         let entregas = await response.json();
 
-        // Filtrar para el historial: TODO lo que NO sea REVISADO (nuestro nuevo "Pendiente")
+
         const historial = entregas.filter(e => e.estado !== 'REVISADO');
 
         renderEntregas(historial, 'mis-entregas-body', false);
@@ -250,19 +284,20 @@ function renderTareasPendientes(entregas) {
     if (!container) return;
     container.innerHTML = '';
 
-    // Filtrar entregas del usuario actual que NO estén 'APROBADO' o 'REVISADO' (Logica de ejemplo)
-    // O si quieres mostrar TODAS las pendientes del sistema, quita el filtro de usuario.
-    // Asumiremos que "Tareas Pendientes" son las del usuario logueado.
+
 
     let misPendientes = [];
-    if (usuario) {
-        // Solo tareas del usuario que estén REVISADO (Usamos REVISADO como "Pendiente" para que Render lo acepte)
+    const usuarioActual = JSON.parse(localStorage.getItem('usuario'));
+    if (usuarioActual) {
+
+
+
         misPendientes = entregas.filter(e =>
-            e.matricula === usuario.matricula &&
+            e.matricula === usuarioActual.matricula &&
             e.estado === 'REVISADO'
         );
     } else {
-        // Si es invitado, mostrar algunas de ejemplo que estén REVISADO
+
         misPendientes = entregas.filter(e => e.estado === 'REVISADO').slice(0, 3);
     }
 

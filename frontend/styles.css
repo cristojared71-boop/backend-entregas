@@ -1,7 +1,6 @@
 /* Fuenta Profesional */
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
 
-/* Variables Refinadas */
 :root {
     --bg-main: #0a0a16;
     --bg-card: #12122b;
@@ -36,7 +35,6 @@ body {
     overflow: hidden;
 }
 
-/* Scrollbar Personalizado */
 ::-webkit-scrollbar {
     width: 6px;
 }
@@ -50,7 +48,8 @@ body {
     border-radius: 10px;
 }
 
-/* Sidebar Estilo Pro */
+
+
 .sidebar {
     width: 280px;
     background-color: var(--sidebar-bg);

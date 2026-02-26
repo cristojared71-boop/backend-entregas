@@ -15,6 +15,7 @@
             --text-muted: #94a3b8;
             --border: rgba(255, 255, 255, 0.08);
             --glass: rgba(255, 255, 255, 0.03);
+            --error: #ff4d4d;
         }
 
         body,
@@ -47,7 +48,7 @@
 
         .login-card {
             background-color: var(--bg-card);
-            padding: 50px 40px;
+            padding: 40px;
             width: 90%;
             max-width: 400px;
             border-radius: 24px;
@@ -59,9 +60,9 @@
         }
 
         .login-card h2 {
-            font-size: 2.5rem;
+            font-size: 2.2rem;
             font-weight: 700;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
             background: linear-gradient(135deg, var(--primary), #00f2fe);
             background-clip: text;
             -webkit-background-clip: text;
@@ -71,21 +72,46 @@
 
         .login-card .subtitle {
             color: var(--text-muted);
-            font-size: 1.1rem;
-            margin-bottom: 40px;
+            font-size: 1rem;
+            margin-bottom: 30px;
             font-weight: 400;
         }
 
-        .login-card p {
+        .form-group {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
             color: var(--text-muted);
-            margin-bottom: 40px;
-            line-height: 1.6;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: white;
+            font-family: inherit;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 4px rgba(79, 172, 254, 0.1);
         }
 
         .btn-login {
             width: 100%;
-            padding: 16px;
+            padding: 14px;
             background: linear-gradient(135deg, var(--primary), #00f2fe);
             color: #000;
             border: none;
@@ -95,6 +121,7 @@
             font-weight: 600;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+            margin-top: 10px;
         }
 
         .btn-login:hover {
@@ -103,8 +130,17 @@
             filter: brightness(1.1);
         }
 
-        .btn-login:active {
-            transform: translateY(0);
+        .btn-login:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        #error-msg {
+            color: var(--error);
+            font-size: 0.85rem;
+            margin-top: 15px;
+            display: none;
         }
     </style>
 </head>
@@ -114,23 +150,105 @@
         <h2>DASHROM</h2>
         <div class="subtitle">Sistema de Entregas</div>
 
-        <p>Bienvenido al panel centralizado. Gestiona tus tareas y entregas de manera sencilla y profesional.</p>
+        <form id="login-form">
+            <div class="form-group">
+                <label for="email">Correo Electrónico</label>
+                <input type="email" id="email" placeholder="ejemplo@gmail.com" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Contraseña</label>
+                <input type="password" id="password" placeholder="••••••••" required>
+            </div>
+            <button type="submit" id="btn-login" class="btn-login">Iniciar Sesión</button>
+        </form>
 
-        <button id="btn-comenzar" class="btn-login">Comenzar Ahora</button>
+        <div id="error-msg"></div>
     </div>
 
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+
+    <!-- Configuración -->
+    <script src="firebase-config.js"></script>
+
     <script>
-        document.getElementById('btn-comenzar').addEventListener('click', function () {
-            console.log("🚀 Iniciando sistema como Invitado...");
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
 
-            const usuarioInvitado = {
-                matricula: "Invitado",
-                rol: "VISITANTE",
-                nombre: "Usuario Invitado"
-            };
+        // Manejar Login
+        document.getElementById('login-form').addEventListener('submit', function (e) {
+            e.preventDefault();
 
-            localStorage.setItem('usuario', JSON.stringify(usuarioInvitado));
-            window.location.replace("dashboard.ejemplo.html");
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const btn = document.getElementById('btn-login');
+            const errorMsg = document.getElementById('error-msg');
+
+            console.log("🚀 Intentando iniciar sesión...");
+
+            errorMsg.style.display = 'none';
+            btn.disabled = true;
+            btn.innerText = "Accediendo...";
+
+            // Configurar persistencia de sesión a 'LOCAL' para que Firebase sincronice el cierre de sesión en todas las pestañas
+            auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+                .then(() => {
+                    return auth.signInWithEmailAndPassword(email, password);
+                })
+                .then((userCredential) => {
+                    console.log("✅ Sesión iniciada con éxito");
+
+                    const user = userCredential.user;
+                    const userData = {
+                        matricula: user.email,
+                        rol: "ADMIN",
+                        nombre: user.displayName || user.email.split('@')[0],
+                        uid: user.uid
+                    };
+
+                    localStorage.setItem('usuario', JSON.stringify(userData));
+                    window.location.replace("dashboard.ejemplo.html");
+                })
+                .catch((error) => {
+                    console.error("❌ Error en login:", error);
+                    btn.disabled = false;
+                    btn.innerText = "Iniciar Sesión";
+                    errorMsg.style.display = 'block';
+
+                    // Limpiar el mensaje si viene como JSON o con prefijos extraños
+                    let message = error.message;
+                    if (message.includes('{')) {
+                        try {
+                            const parsed = JSON.parse(message.substring(message.indexOf('{')));
+                            if (parsed.error && parsed.error.message) {
+                                message = parsed.error.message;
+                            }
+                        } catch (e) { }
+                    }
+
+                    switch (error.code || message) {
+                        case 'auth/user-not-found':
+                        case 'auth/wrong-password':
+                        case 'INVALID_LOGIN_CREDENTIALS':
+                            errorMsg.innerText = "Correo o contraseña incorrectos.";
+                            break;
+                        case 'auth/invalid-email':
+                            errorMsg.innerText = "Correo electrónico no válido.";
+                            break;
+                        default:
+                            errorMsg.innerText = "Error: " + message;
+                    }
+                });
+        });
+
+        // Verificar si ya tiene sesión activa
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                console.log("👤 Usuario ya autenticado, redirigiendo...");
+                window.location.replace("dashboard.ejemplo.html");
+            }
         });
     </script>
 </body>

@@ -11,7 +11,6 @@ mongoose.connect(mongoURI)
         console.log('¡Conectado a MongoDB local exitosamente!');
 
         try {
-            // Limpiar colección existente
             await Delivery.deleteMany({});
             console.log('Base de datos limpiada.');
 

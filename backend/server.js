@@ -32,18 +32,12 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-// Logging Middleware
 app.use((req, res, next) => {
     console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
     next();
 });
 
-// ===============================
-// RUTAS API
-// ===============================
 
-// Obtener todas las entregas
-// Obtener todas las entregas (o filtrar por matrícula)
 app.get('/api/entregas', async (req, res) => {
     try {
         const { matricula } = req.query;
@@ -60,7 +54,6 @@ app.get('/api/entregas', async (req, res) => {
     }
 });
 
-// Crear una entrega (soporta archivo o JSON)
 app.post('/api/entregas', upload.single('archivo'), async (req, res) => {
     try {
         console.log("📥 Recibiendo nueva entrega...");
@@ -68,7 +61,6 @@ app.post('/api/entregas', upload.single('archivo'), async (req, res) => {
 
         let deliveryData = { ...req.body };
 
-        // Si hay un archivo, usamos su URL local
         if (req.file) {
             console.log("📄 Archivo recibido:", req.file.filename);
             const protocol = req.protocol;
@@ -86,7 +78,6 @@ app.post('/api/entregas', upload.single('archivo'), async (req, res) => {
     }
 });
 
-// Actualizar estado de una entrega
 app.put('/api/entregas/:id', async (req, res) => {
     try {
         const { id } = req.params;
@@ -128,11 +119,7 @@ app.delete('/api/entregas/:id', async (req, res) => {
     }
 });
 
-// ===============================
-// AUTENTICACIÓN
-// ===============================
 
-// Registro
 app.post('/api/register', async (req, res) => {
     try {
         const { matricula, password, rol } = req.body;
@@ -191,12 +178,12 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
-// Ruta de prueba
+
 app.get('/', (req, res) => {
     res.send('API del Sistema de Entregas funcionando');
 });
 
-// Endpoint de salud para monitoreo
+
 app.get('/api/health', (req, res) => {
     res.json({
         status: 'ok',
@@ -205,19 +192,17 @@ app.get('/api/health', (req, res) => {
     });
 });
 
-// ===============================
-// CONEXIÓN A MONGO Y ARRANQUE
-// ===============================
+
 
 const startServer = async () => {
     try {
-        // CONEXIÓN A MONGODB ATLAS (Nube)
+        // CONEXIÓN A MONGODB ATLAS 
         const atlasUri = 'mongodb+srv://admin:Admin123*@cluster0.bumrdl9.mongodb.net/sistema_entregas?retryWrites=true&w=majority&appName=Cluster0'; await mongoose.connect(atlasUri, {
             serverSelectionTimeoutMS: 5000
         });
         console.log('✅ MongoDB Atlas conectado correctamente (Nube)');
 
-        // Escuchar en el puerto que asigne el servidor (Render) o el 5000 por defecto
+        
         const PORT = process.env.PORT || 5000;
         app.listen(PORT, '0.0.0.0', () => {
             console.log(`🚀 Servidor corriendo en el puerto ${PORT}`);
